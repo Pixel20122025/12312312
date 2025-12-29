@@ -1,140 +1,339 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="uk">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reddy Mikks Solver | Linear Programming</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>LP Visual Solver</title>
+
+<style>
+:root{
+  --bg:#020617;
+  --card:rgba(30,41,59,0.85);
+  --border:rgba(148,163,184,0.25);
+  --text:#e5e7eb;
+  --muted:#94a3b8;
+  --accent:#38bdf8;
+  --accent-2:#f472b6;
+  --success:#22c55e;
+  --danger:#ef4444;
+}
+
+*{box-sizing:border-box;font-family:Inter,Segoe UI,Roboto,Arial,sans-serif}
+
+body{
+  margin:0;
+  background:radial-gradient(circle at top,#1e293b,#020617);
+  color:var(--text);
+  padding:20px;
+}
+
+.container{max-width:1150px;margin:auto}
+
+header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:18px;
+}
+
+h1{font-size:22px;margin:0}
+
+.row{display:flex;gap:16px}
+
+.col{
+  background:var(--card);
+  border:1px solid var(--border);
+  backdrop-filter:blur(14px);
+  padding:16px;
+  border-radius:16px;
+  box-shadow:0 20px 40px rgba(0,0,0,.4);
+}
+
+.left{width:380px}
+.right{flex:1}
+
+label{
+  display:block;
+  font-size:13px;
+  color:var(--muted);
+  margin-bottom:6px;
+}
+
+input, select{
+  width:100%;
+  background:#020617;
+  color:var(--text);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:9px 10px;
+}
+
+input:focus, select:focus{
+  outline:none;
+  border-color:var(--accent);
+}
+
+hr{border:none;height:1px;background:var(--border);margin:14px 0}
+
+.btn{
+  border:none;
+  border-radius:10px;
+  padding:9px 14px;
+  cursor:pointer;
+  font-weight:600;
+  transition:.2s;
+}
+
+.btn.primary{
+  background:linear-gradient(135deg,var(--accent),#0ea5e9);
+  color:#020617;
+}
+
+.btn.primary:hover{opacity:.9}
+
+.btn.ghost{
+  background:transparent;
+  border:1px solid var(--border);
+  color:var(--text);
+}
+
+.btn.ghost:hover{background:rgba(255,255,255,.05)}
+
+.constraints{max-height:300px;overflow:auto}
+
+.constraint{
+  display:flex;
+  gap:6px;
+  align-items:center;
+  margin-bottom:8px;
+}
+
+.constraint input{width:70px}
+
+.constraint .remove{
+  background:rgba(239,68,68,.15);
+  color:#fecaca;
+  border:none;
+  border-radius:8px;
+  padding:6px;
+  cursor:pointer;
+}
+
+.constraint .remove:hover{background:rgba(239,68,68,.3)}
+
+.status{margin-top:10px;font-size:14px}
+
+svg{
+  width:100%;
+  height:600px;
+  background:#020617;
+  border-radius:16px;
+  border:1px solid var(--border);
+}
+
+footer{
+  margin-top:16px;
+  text-align:center;
+  font-size:13px;
+  color:var(--muted);
+}
+
+@media(max-width:900px){
+  .row{flex-direction:column}
+  .left{width:100%}
+}
+</style>
 </head>
-<body class="bg-gray-100 min-h-screen p-8">
-    <div class="max-w-5xl mx-auto bg-white p-8 rounded-xl shadow-lg">
-        <h1 class="text-3xl font-bold text-center mb-8 text-blue-700">Reddy Mikks Linear Programming Solver</h1>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div class="space-y-6">
-                <section>
-                    <h2 class="text-xl font-semibold mb-3 border-b pb-2">Objective Function </h2>
-                    <div class="flex items-center space-x-2">
-                        <span>Max Z =</span>
-                        <input type="number" id="obj-a" value="5" class="w-20 p-2 border rounded">
-                        <span>x₁ +</span>
-                        <input type="number" id="obj-b" value="4" class="w-20 p-2 border rounded">
-                        <span>x₂</span>
-                    </div>
-                </section>
 
-                <section>
-                    <h2 class="text-xl font-semibold mb-3 border-b pb-2">Resource Constraints [cite: 26]</h2>
-                    <div class="space-y-3">
-                        <div class="flex items-center space-x-2">
-                            <span class="w-24">M1:</span>
-                            <input type="number" id="m1-x1" value="6" class="w-16 p-2 border rounded">
-                            <span>x₁ +</span>
-                            <input type="number" id="m1-x2" value="4" class="w-16 p-2 border rounded">
-                            <span>x₂ ≤ 24</span>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            <span class="w-24">M2:</span>
-                            <input type="number" id="m2-x1" value="1" class="w-16 p-2 border rounded">
-                            <span>x₁ +</span>
-                            <input type="number" id="m2-x2" value="2" class="w-16 p-2 border rounded">
-                            <span>x₂ ≤ 6</span>
-                        </div>
-                    </div>
-                </section>
+<body>
+<div class="container">
 
-                <section>
-                    <div class="flex justify-between items-center mb-3 border-b pb-2">
-                        <h2 class="text-xl font-semibold">Demand Constraints </h2>
-                        <button onclick="addConstraint()" class="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600">+ Add</button>
-                    </div>
-                    <div id="dynamic-constraints" class="space-y-3">
-                        <div class="flex items-center space-x-2 constraint-row">
-                            <input type="number" value="-1" class="w-12 p-1 border rounded"> <span>x₁ +</span>
-                            <input type="number" value="1" class="w-12 p-1 border rounded"> <span>x₂ ≤ 1</span>
-                            <button onclick="this.parentElement.remove()" class="text-red-500 font-bold px-2">×</button>
-                        </div>
-                        <div class="flex items-center space-x-2 constraint-row">
-                            <input type="number" value="0" class="w-12 p-1 border rounded"> <span>x₁ +</span>
-                            <input type="number" value="1" class="w-12 p-1 border rounded"> <span>x₂ ≤ 2</span>
-                            <button onclick="this.parentElement.remove()" class="text-red-500 font-bold px-2">×</button>
-                        </div>
-                    </div>
-                </section>
+<header>
+  <h1>LP Visual Solver</h1>
+  <div>
+    <select id="lang">
+      <option value="ua">Українська</option>
+      <option value="en">English</option>
+    </select>
+    <button id="reset" class="btn ghost">Reset</button>
+  </div>
+</header>
 
-                <button onclick="solve()" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold text-lg hover:bg-blue-700 transition">Solve Problem [cite: 28]</button>
-            </div>
+<div class="row">
 
-            <div class="flex flex-col">
-                <div class="bg-gray-50 p-4 rounded-lg mb-4 border h-full">
-                    <canvas id="solutionChart"></canvas>
-                </div>
-                <div id="result" class="p-4 bg-blue-50 border border-blue-200 rounded-lg hidden">
-                    <h3 class="font-bold text-blue-800">Result:</h3>
-                    <p id="optimal-values" class="text-lg"></p>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="col left">
+  <label>Цільова функція (Max)</label>
+  <div style="display:flex;gap:6px">
+    <input id="a" type="number" value="3"/>
+    <span>× x₁ +</span>
+    <input id="b" type="number" value="2"/>
+    <span>× x₂</span>
+  </div>
 
-    <script>
-        let chart = null;
+  <label style="margin-top:6px">
+    <input id="nonneg" type="checkbox" checked/>
+    x₁, x₂ ≥ 0
+  </label>
 
-        function addConstraint() {
-            const container = document.getElementById('dynamic-constraints');
-            const div = document.createElement('div');
-            div.className = 'flex items-center space-x-2 constraint-row';
-            div.innerHTML = `
-                <input type="number" value="0" class="w-12 p-1 border rounded"> <span>x₁ +</span>
-                <input type="number" value="0" class="w-12 p-1 border rounded"> <span>x₂ ≤ 0</span>
-                <button onclick="this.parentElement.remove()" class="text-red-500 font-bold px-2">×</button>
-            `;
-            container.appendChild(div);
-        }
+  <hr/>
 
-        function solve() {
-            // This is a simplified graphical solver logic 
-            // In a real scenario, you'd calculate intersections of all lines
-            // For this demo, we'll show the optimal point for the standard Reddy Mikks task
-            const x1 = 3; 
-            const x2 = 1.5;
-            const maxZ = (document.getElementById('obj-a').value * x1) + (document.getElementById('obj-b').value * x2);
+  <label>Обмеження</label>
+  <div class="constraints" id="constraintsList"></div>
 
-            document.getElementById('result').classList.remove('hidden');
-            document.getElementById('optimal-values').innerText = `Optimal Solution: x₁ = ${x1}, x₂ = ${x2} \nMax Profit Z = $${maxZ * 1000}`;
+  <div style="display:flex;gap:8px">
+    <button id="addCons" class="btn primary">+ Додати</button>
+    <button id="solve" class="btn" style="background:var(--success);color:#020617">
+      Solve
+    </button>
+  </div>
 
-            renderChart(x1, x2);
-        }
+  <div class="status" id="status"></div>
+  <div id="solutionBox" style="margin-top:10px; font-weight:bold; color:var(--accent)"></div>
+</div>
 
-        function renderChart(optX1, optX2) {
-            const ctx = document.getElementById('solutionChart').getContext('2d');
-            if (chart) chart.destroy();
+<div class="col right">
+  <svg id="svg" viewBox="0 0 600 600">
+    <line x1="0" y1="599" x2="600" y2="599" stroke="#475569" stroke-width="2"/>
+    <line x1="1" y1="0" x2="1" y2="600" stroke="#475569" stroke-width="2"/>
+  </svg>
+</div>
 
-            chart = new Chart(ctx, {
-                type: 'scatter',
-                data: {
-                    datasets: [{
-                        label: 'Optimal Point',
-                        data: [{x: optX1, y: optX2}],
-                        backgroundColor: 'red',
-                        pointRadius: 8
-                    }, {
-                        label: 'M1 Constraint',
-                        showLine: true,
-                        data: [{x: 0, y: 6}, {x: 4, y: 0}],
-                        borderColor: 'blue',
-                        fill: false
-                    }]
-                },
-                options: {
-                    scales: {
-                        x: { title: { display: true, text: 'Exterior Paint (x₁)' }, min: 0, max: 6 },
-                        y: { title: { display: true, text: 'Interior Paint (x₂)' }, min: 0, max: 6 }
-                    }
-                }
-            });
-        }
-    </script>
+</div>
+
+<footer>
+  Працює офлайн • HTML + JS • Visual LP Solver
+</footer>
+
+</div>
+
+<script>
+const svg=document.getElementById("svg");
+const list=document.getElementById("constraintsList");
+const status=document.getElementById("status");
+const sol=document.getElementById("solutionBox");
+const aInput = document.getElementById("a");
+const bInput = document.getElementById("b");
+
+let constraints=[
+  {id:1,c:1,d:0,s:6},
+  {id:2,c:0,d:1,s:4}
+];
+
+function render(){
+  list.innerHTML="";
+  constraints.forEach(l=>{
+    const r=document.createElement("div");
+    r.className="constraint";
+    r.innerHTML=`
+      <input type="number" value="${l.c}" class="inp-c">
+      <span>x₁ +</span>
+      <input type="number" value="${l.d}" class="inp-d">
+      <span>x₂ ≤</span>
+      <input type="number" value="${l.s}" class="inp-s">
+      <button class="remove">✕</button>`;
+    
+    r.querySelector(".inp-c").onchange=(e)=>l.c = +e.target.value;
+    r.querySelector(".inp-d").onchange=(e)=>l.d = +e.target.value;
+    r.querySelector(".inp-s").onchange=(e)=>l.s = +e.target.value;
+
+    r.querySelector(".remove").onclick=()=>{
+      constraints=constraints.filter(x=>x!==l);
+      render(); draw();
+    };
+    list.appendChild(r);
+  });
+}
+
+function feasible(x,y){
+  if(document.getElementById("nonneg").checked&&(x<0||y<0))return false;
+  return constraints.every(l=>l.c*x+l.d*y<=l.s+1e-6);
+}
+
+function solve(){
+  status.textContent="";
+  sol.innerHTML="";
+  let best=null,val=-1e18;
+  
+  // Простий метод перебору для візуалізації (Brute-force)
+  for(let x=0;x<=20;x+=0.1)
+    for(let y=0;y<=20;y+=0.1)
+      if(feasible(x,y)){
+        let v=x*+aInput.value+y*+bInput.value;
+        if(v>val){val=v;best={x,y}}
+      }
+      
+  if(!best || val === -1e18){
+    status.textContent="Немає рішень";
+    return;
+  }
+  
+  status.textContent="Оптимум:";
+  sol.innerHTML=`x₁=${best.x.toFixed(2)}<br>x₂=${best.y.toFixed(2)}<br>F=${val.toFixed(2)}`;
+  draw(best);
+}
+
+function draw(opt){
+  // Очищення SVG крім осей
+  while(svg.childNodes.length > 4) svg.removeChild(svg.lastChild);
+  
+  const scale = 30; // Масштаб: 1 одиниця = 30 пікселів
+
+  constraints.forEach(l=>{
+    if(l.c === 0 && l.d === 0) return;
+    
+    const line=document.createElementNS("http://www.w3.org/2000/svg","line");
+    let x1, y1, x2, y2;
+
+    if (l.d !== 0 && l.c !== 0) {
+      x1 = 0; y1 = l.s / l.d;
+      x2 = l.s / l.c; y2 = 0;
+    } else if (l.d === 0) {
+      x1 = l.s / l.c; y1 = 0;
+      x2 = l.s / l.c; y2 = 20;
+    } else {
+      x1 = 0; y1 = l.s / l.d;
+      x2 = 20; y2 = l.s / l.d;
+    }
+
+    line.setAttribute("x1", x1 * scale);
+    line.setAttribute("y1", 600 - y1 * scale);
+    line.setAttribute("x2", x2 * scale);
+    line.setAttribute("y2", 600 - y2 * scale);
+    line.setAttribute("stroke","#38bdf8");
+    line.setAttribute("stroke-width",2);
+    svg.appendChild(line);
+  });
+
+  if(opt){
+    const c=document.createElementNS("http://www.w3.org/2000/svg","circle");
+    c.setAttribute("cx",opt.x * scale);
+    c.setAttribute("cy",600 - opt.y * scale);
+    c.setAttribute("r",6);
+    c.setAttribute("fill","#f472b6");
+    svg.appendChild(c);
+  }
+}
+
+document.getElementById("addCons").onclick=()=>{
+  constraints.push({id:Date.now(),c:1,d:1,s:5});
+  render();
+};
+
+document.getElementById("solve").onclick=solve;
+
+document.getElementById("reset").onclick=()=>{
+  constraints=[{id:1,c:1,d:0,s:6},{id:2,c:0,d:1,s:4}];
+  aInput.value=3;
+  bInput.value=2;
+  status.textContent="";
+  sol.innerHTML="";
+  render();
+  draw();
+};
+
+render();
+draw();
+</script>
+
 </body>
 </html>
