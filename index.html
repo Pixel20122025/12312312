@@ -1,384 +1,247 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="uk">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>LP Visual Solver Pro</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OptiGraph — Калькулятор Лінійного Програмування</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #f59e0b;
+            --surface: #ffffff;
+            --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            --text-main: #1e293b;
+        }
 
-<style>
-:root{
-  --bg:#020617;
-  --card:rgba(30,41,59,0.85);
-  --border:rgba(148,163,184,0.25);
-  --text:#e5e7eb;
-  --muted:#94a3b8;
-  --accent:#38bdf8;
-  --accent-2:#f472b6;
-  --success:#22c55e;
-  --danger:#ef4444;
-}
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
+        }
 
-*{box-sizing:border-box;font-family:Inter,system-ui,sans-serif}
+        .app-shell {
+            width: 100%;
+            max-width: 1200px;
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 24px;
+        }
 
-body{
-  margin:0;
-  background:radial-gradient(circle at top,#1e293b,#020617);
-  color:var(--text);
-  padding:20px;
-  min-height: 100vh;
-}
+        .panel {
+            background: var(--surface);
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+        }
 
-.container{max-width:1150px;margin:auto}
+        h2 { margin-top: 0; font-weight: 700; color: #0f172a; }
 
-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:18px;
-}
+        .input-group { margin-bottom: 20px; }
+        
+        .math-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
 
-h1{font-size:22px;margin:0; background: linear-gradient(to right, #38bdf8, #f472b6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;}
+        input[type="number"] {
+            padding: 10px;
+            border: 2px solid #f1f5f9;
+            border-radius: 8px;
+            width: 80px;
+            transition: border-color 0.3s;
+        }
 
-.row{display:flex;gap:16px}
+        input:focus { border-color: var(--primary); outline: none; }
 
-.col{
-  background:var(--card);
-  border:1px solid var(--border);
-  backdrop-filter:blur(14px);
-  padding:20px;
-  border-radius:16px;
-  box-shadow:0 20px 40px rgba(0,0,0,.4);
-}
+        .btn {
+            cursor: pointer;
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 600;
+            transition: transform 0.1s, filter 0.2s;
+        }
 
-.left{width:400px; flex-shrink: 0;}
-.right{flex:1; display: flex; flex-direction: column;}
+        .btn-main { background: var(--primary); color: white; width: 100%; }
+        .btn-add { background: #f1f5f9; color: var(--text-main); margin-top: 10px; }
+        .btn:active { transform: scale(0.98); }
 
-label{
-  display:block;
-  font-size:13px;
-  color:var(--muted);
-  margin-bottom:6px;
-  margin-top: 12px;
-}
+        #canvas-container {
+            position: relative;
+            background: #fff;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
 
-input, select{
-  width:100%;
-  background:#0f172a;
-  color:var(--text);
-  border:1px solid var(--border);
-  border-radius:8px;
-  padding:8px 10px;
-  transition: 0.2s;
-}
+        svg { width: 100%; height: 100%; min-height: 500px; }
 
-input:focus{
-  outline:none;
-  border-color:var(--accent);
-  box-shadow: 0 0 0 2px rgba(56,189,248,0.2);
-}
+        .result-badge {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f0fdf4;
+            border-left: 4px solid #22c55e;
+            border-radius: 8px;
+            display: none;
+        }
 
-hr{border:none;height:1px;background:var(--border);margin:20px 0}
+        .constraint-item {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            align-items: center;
+            animation: slideIn 0.3s ease-out;
+        }
 
-.btn{
-  border:none;
-  border-radius:10px;
-  padding:10px 16px;
-  cursor:pointer;
-  font-weight:600;
-  transition:.2s;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } }
 
-.btn.primary{
-  background:var(--accent);
-  color:#020617;
-}
-
-.btn.primary:hover{transform: translateY(-1px); opacity: 0.9;}
-
-.btn.ghost{
-  background:transparent;
-  border:1px solid var(--border);
-  color:var(--text);
-}
-
-.constraints{max-height:350px; overflow-y:auto; margin-bottom: 15px; padding-right: 5px;}
-
-.constraint{
-  display:flex;
-  gap:8px;
-  align-items:center;
-  margin-bottom:10px;
-}
-
-.constraint input{width:60px; text-align: center;}
-
-.constraint .remove{
-  background:rgba(239,68,68,0.1);
-  color:var(--danger);
-  border: 1px solid rgba(239,68,68,0.2);
-  border-radius:6px;
-  padding:4px 8px;
-  cursor:pointer;
-}
-
-.status{margin-top:15px; padding:10px; border-radius:8px; background: rgba(0,0,0,0.2);}
-.res-val { color: var(--accent); font-weight: bold; font-size: 1.1em;}
-
-svg{
-  width:100%;
-  height:100%;
-  min-height: 500px;
-  background:#020617;
-  border-radius:12px;
-  border:1px solid var(--border);
-}
-
-.grid-line { stroke: rgba(255,255,255,0.05); stroke-width: 1; }
-.axis { stroke: var(--muted); stroke-width: 2; }
-
-@media(max-width:900px){
-  .row{flex-direction:column}
-  .left{width:100%}
-}
-</style>
+        @media (max-width: 950px) {
+            .app-shell { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
-
 <body>
-<div class="container">
 
-<header>
-  <h1>LP Visual Solver</h1>
-  <div>
-    <button id="reset" class="btn ghost">Скинути</button>
-  </div>
-</header>
+<div class="app-shell">
+    <aside class="panel">
+        <h2>OptiGraph</h2>
+        <p style="color: #64748b; font-size: 14px;">Візуалізація симплекс-методу для 2-х змінних</p>
+        
+        <div class="input-group">
+            <label>Цільова функція Z (Max):</label>
+            <div class="math-row">
+                <input type="number" id="z1" value="5"> <span>x₁ +</span>
+                <input type="number" id="z2" value="4"> <span>x₂</span>
+            </div>
+        </div>
 
-<div class="row">
+        <div class="input-group">
+            <label>Обмеження (Ax + By ≤ C):</label>
+            <div id="constraints-list">
+                </div>
+            <button class="btn btn-add" id="add-trigger">+ Додати рядок</button>
+        </div>
 
-<div class="col left">
-  <label>Цільова функція (Maximize F)</label>
-  <div style="display:flex;gap:8px;align-items:center">
-    <input id="objA" type="number" value="3"/>
-    <span>x₁ +</span>
-    <input id="objB" type="number" value="2"/>
-    <span>x₂</span>
-  </div>
+        <button class="btn btn-main" onclick="processLinearProgramming()">Обчислити результат</button>
 
-  <label>
-    <input id="nonneg" type="checkbox" checked style="width:auto; margin-right:8px"/>
-    Обмеження невід'ємності (x₁, x₂ ≥ 0)
-  </label>
+        <div id="output" class="result-badge"></div>
+    </aside>
 
-  <hr/>
-
-  <label>Система обмежень (Ax₁ + Bx₂ ≤ S)</label>
-  <div class="constraints" id="constraintsList"></div>
-
-  <div style="display:flex;gap:8px">
-    <button id="addCons" class="btn ghost" style="flex:1">+ Додати</button>
-    <button id="solve" class="btn primary" style="flex:1; background:var(--success)">
-      Розв'язати
-    </button>
-  </div>
-
-  <div id="result" class="status" style="display:none">
-    <div>Оптимальний план:</div>
-    <div id="solutionBox" style="margin-top:5px"></div>
-  </div>
-</div>
-
-<div class="col right">
-  <svg id="svg" viewBox="0 0 600 600">
-    </svg>
-</div>
-
-</div>
-
-<footer>
-  Візуальний симплекс-метод (сітковий пошук) • 2024
-</footer>
-
+    <main id="canvas-container">
+        <svg id="visualizer-svg" viewBox="0 0 500 500">
+            <defs>
+                <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
+                    <path d="M 50 0 L 0 0 0 50" fill="none" stroke="#f1f5f9" stroke-width="1"/>
+                </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#grid)" />
+            <line x1="40" y1="460" x2="480" y2="460" stroke="#94a3b8" stroke-width="2" /> <line x1="40" y1="460" x2="40" y2="20" stroke="#94a3b8" stroke-width="2" />  </svg>
+    </main>
 </div>
 
 <script>
-const svg = document.getElementById("svg");
-const list = document.getElementById("constraintsList");
-const solBox = document.getElementById("solutionBox");
-const resDiv = document.getElementById("result");
+    const svgArea = document.getElementById('visualizer-svg');
+    const listWrapper = document.getElementById('constraints-list');
+    let dataModel = [
+        {a: 2, b: 1, c: 20},
+        {a: 1, b: 3, c: 30}
+    ];
 
-const SCALE = 30; // 1 одиниця = 30 пікселів
-const OFFSET = 40; // Відступ від краю для осей
-
-let constraints = [
-  {a: 1, b: 2, s: 8},
-  {a: 3, b: 2, s: 12}
-];
-
-function renderConstraints() {
-  list.innerHTML = "";
-  constraints.forEach((c, index) => {
-    const div = document.createElement("div");
-    div.className = "constraint";
-    div.innerHTML = `
-      <input type="number" class="c-a" value="${c.a}">
-      <span>x₁ +</span>
-      <input type="number" class="c-b" value="${c.b}">
-      <span>x₂ ≤</span>
-      <input type="number" class="c-s" value="${c.s}">
-      <button class="remove" onclick="removeConstraint(${index})">✕</button>
-    `;
-    list.appendChild(div);
-  });
-}
-
-window.removeConstraint = (index) => {
-  constraints.splice(index, 1);
-  renderConstraints();
-};
-
-document.getElementById("addCons").onclick = () => {
-  constraints.push({a: 1, b: 1, s: 5});
-  renderConstraints();
-};
-
-function getConstraintsFromUI() {
-  const items = document.querySelectorAll(".constraint");
-  return Array.from(items).map(item => ({
-    a: parseFloat(item.querySelector(".c-a").value) || 0,
-    b: parseFloat(item.querySelector(".c-b").value) || 0,
-    s: parseFloat(item.querySelector(".c-s").value) || 0
-  }));
-}
-
-function solve() {
-  const currentConstraints = getConstraintsFromUI();
-  const objA = parseFloat(document.getElementById("objA").value) || 0;
-  const objB = parseFloat(document.getElementById("objB").value) || 0;
-  const useNonNeg = document.getElementById("nonneg").checked;
-
-  let bestX = 0, bestY = 0, maxF = -Infinity;
-  let found = false;
-
-  // Пошук по сітці (для візуалізації 2D цього зазвичай достатньо)
-  // В ідеалі тут має бути перебір вершин багатогранника
-  for (let x = 0; x <= 20; x += 0.05) {
-    for (let y = 0; y <= 20; y += 0.05) {
-      let isFeasible = true;
-      
-      if (useNonNeg && (x < -0.001 || y < -0.001)) isFeasible = false;
-      
-      if (isFeasible) {
-        for (let c of currentConstraints) {
-          if (c.a * x + c.b * y > c.s + 0.001) {
-            isFeasible = false;
-            break;
-          }
-        }
-      }
-
-      if (isFeasible) {
-        found = true;
-        let F = objA * x + objB * y;
-        if (F > maxF) {
-          maxF = F;
-          bestX = x;
-          bestY = y;
-        }
-      }
-    }
-  }
-
-  if (found) {
-    resDiv.style.display = "block";
-    solBox.innerHTML = `
-      x₁ = <span class="res-val">${bestX.toFixed(2)}</span><br>
-      x₂ = <span class="res-val">${bestY.toFixed(2)}</span><br>
-      F<sub>max</sub> = <span class="res-val">${maxF.toFixed(2)}</span>
-    `;
-    draw(currentConstraints, {x: bestX, y: bestY});
-  } else {
-    resDiv.style.display = "block";
-    solBox.innerHTML = "Розв'язків не знайдено";
-    draw(currentConstraints, null);
-  }
-}
-
-function draw(cons, opt) {
-  svg.innerHTML = '';
-  
-  // Малюємо сітку
-  for(let i=0; i<=20; i++) {
-    const pos = OFFSET + i * SCALE;
-    // Вертикальні
-    line(pos, OFFSET, pos, 600, "grid-line");
-    // Горизонтальні
-    line(OFFSET, 600 - pos + OFFSET, 600, 600 - pos + OFFSET, "grid-line");
-  }
-
-  // Осі
-  line(OFFSET, 0, OFFSET, 600, "axis"); // Y
-  line(0, 560, 600, 560, "axis"); // X (600 - OFFSET)
-
-  // Обмеження
-  cons.forEach((c, i) => {
-    let x1, y1, x2, y2;
-    
-    if (c.b !== 0) {
-      x1 = 0; y1 = c.s / c.b;
-      x2 = 20; y2 = (c.s - c.a * 20) / c.b;
-    } else if (c.a !== 0) {
-      x1 = c.s / c.a; y1 = 0;
-      x2 = c.s / c.a; y2 = 20;
+    function initUI() {
+        listWrapper.innerHTML = '';
+        dataModel.forEach((item, idx) => {
+            const row = document.createElement('div');
+            row.className = 'constraint-item';
+            row.innerHTML = `
+                <input type="number" value="${item.a}" onchange="updateVal(${idx}, 'a', this.value)">
+                <span>x₁ +</span>
+                <input type="number" value="${item.b}" onchange="updateVal(${idx}, 'b', this.value)">
+                <span>x₂ ≤</span>
+                <input type="number" value="${item.c}" onchange="updateVal(${idx}, 'c', this.value)">
+            `;
+            listWrapper.appendChild(row);
+        });
     }
 
-    const x1p = OFFSET + x1 * SCALE;
-    const y1p = 560 - y1 * SCALE;
-    const x2p = OFFSET + x2 * SCALE;
-    const y2p = 560 - y2 * SCALE;
+    function updateVal(i, key, val) {
+        dataModel[i][key] = parseFloat(val);
+    }
 
-    line(x1p, y1p, x2p, y2p, null, "#38bdf8", 3);
-  });
+    document.getElementById('add-trigger').onclick = () => {
+        dataModel.push({a: 1, b: 1, c: 10});
+        initUI();
+    };
 
-  // Точка оптимуму
-  if (opt) {
-    const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-    circle.setAttribute("cx", OFFSET + opt.x * SCALE);
-    circle.setAttribute("cy", 560 - opt.y * SCALE);
-    circle.setAttribute("r", 8);
-    circle.setAttribute("fill", "#f472b6");
-    circle.innerHTML = `<title>Оптимум</title>`;
-    svg.appendChild(circle);
-  }
-}
+    function processLinearProgramming() {
+        const z1 = parseFloat(document.getElementById('z1').value);
+        const z2 = parseFloat(document.getElementById('z2').value);
+        
+        let bestScore = -Infinity;
+        let coords = {x: 0, y: 0};
 
-function line(x1, y1, x2, y2, className, stroke, width) {
-  const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
-  l.setAttribute("x1", x1);
-  l.setAttribute("y1", y1);
-  l.setAttribute("x2", x2);
-  l.setAttribute("y2", y2);
-  if (className) l.setAttribute("class", className);
-  if (stroke) l.setAttribute("stroke", stroke);
-  if (width) l.setAttribute("stroke-width", width);
-  svg.appendChild(l);
-}
+        // Очищення попередніх ліній (крім сітки)
+        Array.from(svgArea.querySelectorAll('.dynamic-draw')).forEach(e => e.remove());
 
-document.getElementById("solve").onclick = solve;
-document.getElementById("reset").onclick = () => {
-  constraints = [{a: 1, b: 2, s: 8}, {a: 3, b: 2, s: 12}];
-  document.getElementById("objA").value = 3;
-  document.getElementById("objB").value = 2;
-  resDiv.style.display = "none";
-  renderConstraints();
-  draw(constraints, null);
-};
+        // Простий цикл пошуку (брутфорс для демонстрації, можна замінити на Simplex)
+        for(let i=0; i<=50; i+=0.5) {
+            for(let j=0; j<=50; j+=0.5) {
+                let isValid = dataModel.every(con => (con.a * i + con.b * j) <= con.c);
+                if(isValid) {
+                    let score = (z1 * i) + (z2 * j);
+                    if(score > bestScore) {
+                        bestScore = score;
+                        coords = {x: i, y: j};
+                    }
+                }
+            }
+        }
 
-// Start
-renderConstraints();
-draw(constraints, null);
+        renderLines();
+        markOptimal(coords, bestScore);
+    }
+
+    function renderLines() {
+        dataModel.forEach(con => {
+            const xVal = con.c / con.a;
+            const yVal = con.c / con.b;
+
+            const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            line.setAttribute("x1", 40 + (0));
+            line.setAttribute("y1", 460 - (yVal * 10));
+            line.setAttribute("x2", 40 + (xVal * 10));
+            line.setAttribute("y2", 460 - (0));
+            line.setAttribute("stroke", "#6366f1");
+            line.setAttribute("stroke-width", "3");
+            line.setAttribute("class", "dynamic-draw");
+            line.style.opacity = "0.6";
+            svgArea.appendChild(line);
+        });
+    }
+
+    function markOptimal(pt, val) {
+        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        circle.setAttribute("cx", 40 + (pt.x * 10));
+        circle.setAttribute("cy", 460 - (pt.y * 10));
+        circle.setAttribute("r", "8");
+        circle.setAttribute("fill", "#f59e0b");
+        circle.setAttribute("class", "dynamic-draw");
+        svgArea.appendChild(circle);
+
+        const out = document.getElementById('output');
+        out.style.display = 'block';
+        out.innerHTML = `<strong>Результат:</strong><br>x₁ = ${pt.x}, x₂ = ${pt.y}<br>Max Z = ${val}`;
+    }
+
+    initUI();
 </script>
+
 </body>
 </html>
