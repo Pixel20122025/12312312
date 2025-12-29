@@ -40,7 +40,6 @@ body {
   gap: 24px;
 }
 
-/* Sidebar Styling */
 .sidebar {
   background: var(--panel);
   backdrop-filter: blur(20px);
@@ -50,6 +49,7 @@ body {
   display: flex;
   flex-direction: column;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  max-height: 90vh;
 }
 
 h1 {
@@ -61,13 +61,8 @@ h1 {
   -webkit-text-fill-color: transparent;
 }
 
-.subtitle {
-  color: var(--text-dim);
-  font-size: 14px;
-  margin-bottom: 32px;
-}
+.subtitle { color: var(--text-dim); font-size: 14px; margin-bottom: 32px; }
 
-/* Form Elements */
 .section-label {
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -86,12 +81,7 @@ h1 {
   padding: 12px 16px;
   border-radius: 12px;
   border: 1px solid var(--border);
-  transition: all 0.2s;
-}
-
-.input-group:focus-within {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+  margin-bottom: 8px;
 }
 
 input[type="number"] {
@@ -106,23 +96,22 @@ input[type="number"] {
 
 .constraints-container {
   flex-grow: 1;
-  margin: 20px 0;
+  margin: 10px 0;
   overflow-y: auto;
   padding-right: 8px;
 }
 
 .constraint-card {
   background: rgba(255,255,255,0.03);
-  padding: 12px;
+  padding: 10px;
   border-radius: 12px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   display: flex;
   align-items: center;
   gap: 8px;
   border: 1px solid var(--border);
 }
 
-/* Buttons */
 .btn {
   padding: 12px 20px;
   border-radius: 12px;
@@ -136,48 +125,24 @@ input[type="number"] {
   gap: 8px;
 }
 
-.btn-primary {
-  background: var(--accent);
-  color: white;
-  width: 100%;
-}
-
+.btn-primary { background: var(--accent); color: white; width: 100%; }
 .btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); }
+.btn-ghost { background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--border); }
+.btn-danger { background: rgba(239, 68, 68, 0.1); color: #ef4444; padding: 6px 10px; }
 
-.btn-ghost {
-  background: rgba(255,255,255,0.05);
-  color: white;
-  border: 1px solid var(--border);
-}
-
-.btn-danger {
-  background: rgba(239, 68, 68, 0.1);
-  color: #ef4444;
-  padding: 8px;
-}
-
-/* Visualization Area */
-.main-view {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
+.main-view { display: flex; flex-direction: column; gap: 20px; }
 
 .canvas-container {
-  background: var(--panel);
+  background: #020617;
   border-radius: 24px;
   border: 1px solid var(--border);
-  overflow: hidden;
   position: relative;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
   flex-grow: 1;
+  min-height: 600px;
 }
 
-svg {
-  width: 100%;
-  height: 100%;
-  min-height: 500px;
-}
+svg { width: 100%; height: 100%; }
 
 .results-bar {
   background: rgba(16, 185, 129, 0.1);
@@ -194,7 +159,7 @@ svg {
 
 @media (max-width: 1000px) {
   .app-shell { grid-template-columns: 1fr; }
-  .sidebar { order: 2; }
+  .sidebar { order: 2; max-height: none; }
   .main-view { order: 1; }
 }
 </style>
@@ -205,29 +170,29 @@ svg {
   <aside class="sidebar">
     <div style="display:flex; justify-content: space-between; align-items: flex-start;">
       <div>
-        <h1>Visual Solver</h1>
-        <p class="subtitle">Лінійне програмування</p>
+        <h1>LP Visualizer</h1>
+        <p class="subtitle">Графічний метод</p>
       </div>
-      <button id="reset" class="btn btn-ghost" style="padding: 8px 12px; font-size: 12px;">Reset</button>
+      <button id="reset" class="btn btn-ghost" style="padding: 6px 10px; font-size: 11px;">Reset</button>
     </div>
 
     <span class="section-label">Цільова функція (Max)</span>
     <div class="input-group">
-      <input id="a" type="number" value="3"/>
+      <input id="coeffA" type="number" value="3"/>
       <span style="color:var(--text-dim)">x₁ +</span>
-      <input id="b" type="number" value="2"/>
+      <input id="coeffB" type="number" value="2"/>
       <span style="color:var(--text-dim)">x₂</span>
     </div>
 
-    <label style="margin: 20px 0; display: flex; align-items: center; gap: 10px; cursor: pointer;">
+    <label style="margin: 15px 0; display: flex; align-items: center; gap: 10px; cursor: pointer;">
       <input id="nonneg" type="checkbox" checked style="accent-color: var(--accent); width: 18px; height: 18px;">
-      <span style="font-size: 14px;">x₁, x₂ ≥ 0 (Перша чверть)</span>
+      <span style="font-size: 13px;">Обмеження x₁, x₂ ≥ 0</span>
     </label>
 
-    <span class="section-label">Обмеження</span>
+    <span class="section-label">Обмеження (≤)</span>
     <div class="constraints-container" id="constraintsList"></div>
 
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: auto;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
       <button id="addCons" class="btn btn-ghost">＋ Додати</button>
       <button id="solve" class="btn btn-primary">Обчислити</button>
     </div>
@@ -242,8 +207,7 @@ svg {
           </pattern>
         </defs>
         <rect width="100%" height="100%" fill="url(#grid)" />
-        <line x1="0" y1="600" x2="600" y2="600" stroke="rgba(255,255,255,0.2)" stroke-width="4" />
-        <line x1="0" y1="0" x2="0" y2="600" stroke="rgba(255,255,255,0.2)" stroke-width="4" />
+        <g id="viewport"></g>
       </svg>
     </div>
 
@@ -265,129 +229,148 @@ svg {
 </div>
 
 <script>
-const svg=document.getElementById("svg");
-const list=document.getElementById("constraintsList");
-const resultsBar=document.getElementById("results");
+const svg = document.getElementById("svg");
+const viewport = document.getElementById("viewport");
+const list = document.getElementById("constraintsList");
+const resultsBar = document.getElementById("results");
 
-let constraints=[
-  {id:1,c:1,d:0,s:6},
-  {id:2,c:0,d:1,s:4},
-  {id:3,c:1,d:1,s:8}
+let constraints = [
+  {id: 1, c: 1, d: 2, s: 10},
+  {id: 2, c: 2, d: 1, s: 8},
+  {id: 3, c: 0, d: 1, s: 4}
 ];
 
-function render(){
-  list.innerHTML="";
-  constraints.forEach(l=>{
-    const r=document.createElement("div");
-    r.className="constraint-card";
-    r.innerHTML=`
-      <input type="number" value="${l.c}" onchange="updateCons(${l.id}, 'c', this.value)">
-      <span style="color:var(--text-dim)">x₁ +</span>
-      <input type="number" value="${l.d}" onchange="updateCons(${l.id}, 'd', this.value)">
-      <span style="color:var(--text-dim)">x₂ ≤</span>
-      <input type="number" value="${l.s}" onchange="updateCons(${l.id}, 's', this.value)">
-      <button class="btn btn-danger" onclick="removeCons(${l.id})">✕</button>`;
+const SCALE = 30; // 1 одиниця = 30px
+const SIZE = 600;
+
+function renderList() {
+  list.innerHTML = "";
+  constraints.forEach(l => {
+    const r = document.createElement("div");
+    r.className = "constraint-card";
+    r.innerHTML = `
+      <input type="number" value="${l.c}" onchange="updateVal(${l.id},'c',this.value)">
+      <span>x₁+</span>
+      <input type="number" value="${l.d}" onchange="updateVal(${l.id},'d',this.value)">
+      <span>x₂≤</span>
+      <input type="number" value="${l.s}" onchange="updateVal(${l.id},'s',this.value)">
+      <button class="btn btn-danger" onclick="remove(${l.id})">✕</button>`;
     list.appendChild(r);
   });
 }
 
-function updateCons(id, field, value) {
+function updateVal(id, f, v) {
   const c = constraints.find(x => x.id === id);
-  if(c) c[field] = parseFloat(value);
+  if(c) c[f] = parseFloat(v) || 0;
   draw();
 }
 
-function removeCons(id) {
+function remove(id) {
   constraints = constraints.filter(x => x.id !== id);
-  render(); draw();
+  renderList(); draw();
 }
 
-function feasible(x,y){
-  if(document.getElementById("nonneg").checked&&(x<0||y<0))return false;
-  return constraints.every(l=>l.c*x+l.d*y<=l.s+0.001);
+function isFeasible(x, y) {
+  if (document.getElementById("nonneg").checked && (x < -0.01 || y < -0.01)) return false;
+  return constraints.every(l => (l.c * x + l.d * y) <= l.s + 0.01);
 }
 
-function solve(){
-  let best=null, val=-1e18;
-  const step = 0.1;
-  for(let x=0; x<=20; x+=step) {
-    for(let y=0; y<=20; y+=step) {
-      if(feasible(x,y)){
-        let v = x * +a.value + y * +b.value;
-        if(v > val){ val=v; best={x,y} }
+function solve() {
+  let best = null, maxF = -Infinity;
+  for(let x=0; x<=20; x+=0.1) {
+    for(let y=0; y<=20; y+=0.1) {
+      if(isFeasible(x, y)) {
+        let f = x * +coeffA.value + y * +coeffB.value;
+        if(f > maxF) { maxF = f; best = {x, y}; }
       }
     }
   }
-  
-  if(best){
+  if(best) {
     resultsBar.style.display = "grid";
-    document.getElementById("resX1").textContent = best.x.toFixed(2);
-    document.getElementById("resX2").textContent = best.y.toFixed(2);
-    document.getElementById("resF").textContent = val.toFixed(2);
+    resX1.textContent = best.x.toFixed(2);
+    resX2.textContent = best.y.toFixed(2);
+    resF.textContent = maxF.toFixed(2);
     draw(best);
-  } else {
-    alert("Рішення не знайдено");
   }
 }
 
-function draw(opt){
-  // Очищення ліній (залишаємо сітку)
-  const lines = svg.querySelectorAll('.lp-element');
-  lines.forEach(n => n.remove());
+function draw(opt) {
+  viewport.innerHTML = "";
 
-  constraints.forEach(l=>{
-    if(l.c === 0 && l.d === 0) return;
-    const line=document.createElementNS("http://www.w3.org/2000/svg","line");
-    line.setAttribute("class", "lp-element");
-    
+  // 1. Малюємо область допустимих рішень (Scanline visualization)
+  const region = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  let d = "";
+  for(let x=0; x<=20; x+=0.2) {
+    let minY = -1, maxY = -1;
+    for(let y=0; y<=20; y+=0.2) {
+      if(isFeasible(x,y)) {
+        if(minY === -1) minY = y;
+        maxY = y;
+      }
+    }
+    if(minY !== -1) {
+      d += `${x==0?'M':'L'} ${x*SCALE} ${SIZE - maxY*SCALE} `;
+    }
+  }
+  // Замикаємо шлях по осі X для коректної заливки
+  d += `L 20 600 L 0 600 Z`; 
+  region.setAttribute("d", d);
+  region.setAttribute("fill", "rgba(99, 102, 241, 0.2)");
+  viewport.appendChild(region);
+
+  // 2. Осі координат
+  const axes = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  axes.innerHTML = `
+    <line x1="0" y1="${SIZE}" x2="${SIZE}" y2="${SIZE}" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+    <line x1="0" y1="0" x2="0" y2="${SIZE}" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+    <text x="${SIZE-20}" y="${SIZE-10}" fill="white" font-size="12">x₁</text>
+    <text x="10" y="20" fill="white" font-size="12">x₂</text>
+  `;
+  viewport.appendChild(axes);
+
+  // 3. Лінії обмежень
+  constraints.forEach(l => {
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
     let x1, y1, x2, y2;
     if(l.d !== 0 && l.c !== 0) {
-        x1 = 0; y1 = l.s/l.d;
-        x2 = l.s/l.c; y2 = 0;
+      x1 = 0; y1 = l.s/l.d; x2 = l.s/l.c; y2 = 0;
     } else if (l.d === 0) {
-        x1 = l.s/l.c; y1 = 0;
-        x2 = l.s/l.c; y2 = 20;
+      x1 = l.s/l.c; y1 = 0; x2 = l.s/l.c; y2 = 20;
     } else {
-        x1 = 0; y1 = l.s/l.d;
-        x2 = 20; y2 = l.s/l.d;
+      x1 = 0; y1 = l.s/l.d; x2 = 20; y2 = l.s/l.d;
     }
-
-    line.setAttribute("x1", x1*30);
-    line.setAttribute("y1", 600-y1*30);
-    line.setAttribute("x2", x2*30);
-    line.setAttribute("y2", 600-y2*30);
-    line.setAttribute("stroke", "rgba(99, 102, 241, 0.6)");
-    line.setAttribute("stroke-width", 3);
-    svg.appendChild(line);
+    line.setAttribute("x1", x1*SCALE); line.setAttribute("y1", SIZE-y1*SCALE);
+    line.setAttribute("x2", x2*SCALE); line.setAttribute("y2", SIZE-y2*SCALE);
+    line.setAttribute("stroke", "var(--accent)");
+    line.setAttribute("stroke-width", "2");
+    viewport.appendChild(line);
   });
 
-  if(opt){
-    const c=document.createElementNS("http://www.w3.org/2000/svg","circle");
-    c.setAttribute("class", "lp-element");
-    c.setAttribute("cx",opt.x*30);
-    c.setAttribute("cy",600-opt.y*30);
-    c.setAttribute("r",8);
-    c.setAttribute("fill","#ec4899");
-    c.setAttribute("filter", "drop-shadow(0 0 8px #ec4899)");
-    svg.appendChild(c);
+  // 4. Точка оптимуму
+  if(opt) {
+    const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    dot.setAttribute("cx", opt.x*SCALE);
+    dot.setAttribute("cy", SIZE-opt.y*SCALE);
+    dot.setAttribute("r", "6");
+    dot.setAttribute("fill", "var(--secondary)");
+    dot.setAttribute("style", "filter: drop-shadow(0 0 8px var(--secondary))");
+    viewport.appendChild(dot);
   }
 }
 
-document.getElementById("addCons").onclick=()=>{
-  constraints.push({id:Date.now(),c:1,d:1,s:5});
-  render();
+addCons.onclick = () => {
+  constraints.push({id: Date.now(), c: 1, d: 1, s: 5});
+  renderList(); draw();
+};
+solve.onclick = solve;
+reset.onclick = () => {
+  constraints = [{id: 1, c: 1, d: 2, s: 10}, {id: 2, c: 2, d: 1, s: 8}];
+  coeffA.value = 3; coeffB.value = 2;
+  resultsBar.style.display = "none";
+  renderList(); draw();
 };
 
-document.getElementById("solve").onclick=solve;
-document.getElementById("reset").onclick=()=>{
-  constraints=[{id:1,c:1,d:0,s:6},{id:2,c:0,d:1,s:4}];
-  document.getElementById("a").value=3;
-  document.getElementById("b").value=2;
-  resultsBar.style.display="none";
-  render(); draw();
-};
-
-render(); draw();
+renderList(); draw();
 </script>
 
 </body>
