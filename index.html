@@ -1,237 +1,37 @@
 <!DOCTYPE html>
-<html lang="uk">
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Linear Programming Visualizer</title>
-
-<style>
-body{
-  margin:0;
-  font-family:Arial, sans-serif;
-  background:#0f172a;
-  color:#e5e7eb;
-}
-
-.wrapper{
-  max-width:1200px;
-  margin:auto;
-  padding:20px;
-}
-
-h1{margin-bottom:10px}
-
-.panel{
-  display:flex;
-  gap:20px;
-}
-
-.controls{
-  width:340px;
-  background:#020617;
-  padding:15px;
-  border-radius:12px;
-  border:1px solid #334155;
-}
-
-label{
-  font-size:13px;
-  color:#94a3b8;
-}
-
-input{
-  width:100%;
-  margin:5px 0 10px;
-  padding:6px;
-  background:#020617;
-  color:#e5e7eb;
-  border:1px solid #334155;
-  border-radius:6px;
-}
-
-button{
-  padding:8px;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
-  font-weight:bold;
-}
-
-.add{background:#38bdf8;color:#020617}
-.solve{background:#22c55e;color:#020617;margin-top:10px}
-.reset{background:#475569;color:white;margin-top:6px}
-
-.constraints div{
-  display:flex;
-  gap:5px;
-  margin-bottom:6px;
-}
-
-svg{
-  flex:1;
-  height:600px;
-  background:#020617;
-  border-radius:12px;
-  border:1px solid #334155;
-}
-</style>
+  <meta charset="UTF-8">
+  <title>Reddy Mikks Optimizer</title>
+  <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-<div class="wrapper">
-<h1>Візуальний розв’язувач ЗЛП</h1>
+  <h1>Reddy Mikks Linear Programming Solver</h1>
 
-<div class="panel">
-<div class="controls">
-<label>Цільова функція (Max)</label>
-<input id="fa" type="number" value="3">
-<input id="fb" type="number" value="2">
+  <section id="input-section">
+    <h2>Objective Function</h2>
+    Max Z = <input type="number" id="a" placeholder="a"> * x1 + 
+            <input type="number" id="b" placeholder="b"> * x2
 
-<hr>
+    <h2>Constraints</h2>
+    <div id="constraints">
+      <!-- Default constraints -->
+      <input type="text" value="6*x1 + 4*x2 <= 24">
+      <input type="text" value="1*x1 + 2*x2 <= 6">
+      <input type="text" value="x2 - x1 <= 1">
+      <input type="text" value="x2 <= 2">
+    </div>
+    <button onclick="addConstraint()">Add Constraint</button>
+    <button onclick="solve()">Solve</button>
+  </section>
 
-<label>Обмеження</label>
-<div class="constraints" id="cons"></div>
+  <section id="output-section">
+    <h2>Solution</h2>
+    <p id="solution"></p>
+    <canvas id="graph"></canvas>
+  </section>
 
-<button class="add" onclick="addConstraint()">Додати обмеження</button>
-<button class="solve" onclick="solveLP()">Розвʼязати</button>
-<button class="reset" onclick="resetAll()">Скинути</button>
-
-<div id="answer" style="margin-top:10px;font-weight:bold"></div>
-</div>
-
-<svg id="chart" viewBox="0 0 600 600"></svg>
-</div>
-</div>
-
-<script>
-const svg = document.getElementById("chart");
-const consBox = document.getElementById("cons");
-const answer = document.getElementById("answer");
-
-let constraints = [
-  {a:1,b:0,c:6},
-  {a:0,b:1,c:4}
-];
-
-const SCALE = 30;
-
-function addConstraint(){
-  constraints.push({a:1,b:1,c:5});
-  renderConstraints();
-  drawScene();
-}
-
-function resetAll(){
-  constraints=[{a:1,b:0,c:6},{a:0,b:1,c:4}];
-  document.getElementById("fa").value=3;
-  document.getElementById("fb").value=2;
-  answer.textContent="";
-  renderConstraints();
-  drawScene();
-}
-
-function renderConstraints(){
-  consBox.innerHTML="";
-  constraints.forEach((l,i)=>{
-    const row=document.createElement("div");
-    row.innerHTML=`
-      <input type="number" value="${l.a}">
-      <input type="number" value="${l.b}">
-      <input type="number" value="${l.c}">
-    `;
-    const inputs=row.querySelectorAll("input");
-    inputs[0].oninput=e=>l.a=+e.target.value;
-    inputs[1].oninput=e=>l.b=+e.target.value;
-    inputs[2].oninput=e=>l.c=+e.target.value;
-    consBox.appendChild(row);
-  });
-}
-
-function feasible(x,y){
-  return x>=0 && y>=0 &&
-    constraints.every(l=>l.a*x+l.b*y<=l.c+1e-6);
-}
-
-function intersections(){
-  let pts=[];
-  constraints.forEach(l=>{
-    if(l.a!==0) pts.push({x:l.c/l.a,y:0});
-    if(l.b!==0) pts.push({x:0,y:l.c/l.b});
-  });
-
-  for(let i=0;i<constraints.length;i++)
-    for(let j=i+1;j<constraints.length;j++){
-      const A=constraints[i], B=constraints[j];
-      const det=A.a*B.b-A.b*B.a;
-      if(det!==0){
-        const x=(A.c*B.b-A.b*B.c)/det;
-        const y=(A.a*B.c-A.c*B.a)/det;
-        pts.push({x,y});
-      }
-    }
-  return pts.filter(p=>feasible(p.x,p.y));
-}
-
-function solveLP(){
-  const a=+fa.value, b=+fb.value;
-  let best=null, bestVal=-1e9;
-
-  intersections().forEach(p=>{
-    const v=a*p.x+b*p.y;
-    if(v>bestVal){
-      bestVal=v;
-      best=p;
-    }
-  });
-
-  if(!best){
-    answer.textContent="Розвʼязку немає";
-    return;
-  }
-
-  answer.innerHTML=`x₁=${best.x.toFixed(2)}, x₂=${best.y.toFixed(2)}<br>F=${bestVal.toFixed(2)}`;
-  drawScene(best);
-}
-
-function drawScene(opt){
-  svg.innerHTML="";
-
-  // осі
-  drawLine(0,600,600,600,"#64748b");
-  drawLine(0,0,0,600,"#64748b");
-
-  constraints.forEach(l=>{
-    let x1=0,y1=l.c/l.b||0;
-    let x2=l.c/l.a||0,y2=0;
-    drawLine(x1*SCALE,600-y1*SCALE,x2*SCALE,600-y2*SCALE,"#38bdf8");
-  });
-
-  if(opt){
-    drawCircle(opt.x*SCALE,600-opt.y*SCALE,6,"#f472b6");
-  }
-}
-
-function drawLine(x1,y1,x2,y2,color){
-  const l=document.createElementNS("http://www.w3.org/2000/svg","line");
-  l.setAttribute("x1",x1);
-  l.setAttribute("y1",y1);
-  l.setAttribute("x2",x2);
-  l.setAttribute("y2",y2);
-  l.setAttribute("stroke",color);
-  l.setAttribute("stroke-width",2);
-  svg.appendChild(l);
-}
-
-function drawCircle(cx,cy,r,color){
-  const c=document.createElementNS("http://www.w3.org/2000/svg","circle");
-  c.setAttribute("cx",cx);
-  c.setAttribute("cy",cy);
-  c.setAttribute("r",r);
-  c.setAttribute("fill",color);
-  svg.appendChild(c);
-}
-
-renderConstraints();
-drawScene();
-</script>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
