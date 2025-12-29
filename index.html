@@ -4,374 +4,381 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>LP Visual Solver Pro</title>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
-:root {
-  --bg: #0f172a;
-  --panel: rgba(30, 41, 59, 0.7);
-  --accent: #6366f1;
-  --accent-hover: #818cf8;
-  --secondary: #ec4899;
-  --success: #10b981;
-  --text-main: #f8fafc;
-  --text-dim: #94a3b8;
-  --border: rgba(255, 255, 255, 0.1);
-  --input-bg: rgba(15, 23, 42, 0.6);
+:root{
+  --bg:#020617;
+  --card:rgba(30,41,59,0.85);
+  --border:rgba(148,163,184,0.25);
+  --text:#e5e7eb;
+  --muted:#94a3b8;
+  --accent:#38bdf8;
+  --accent-2:#f472b6;
+  --success:#22c55e;
+  --danger:#ef4444;
 }
 
-* { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+*{box-sizing:border-box;font-family:Inter,system-ui,sans-serif}
 
-body {
-  margin: 0;
+body{
+  margin:0;
+  background:radial-gradient(circle at top,#1e293b,#020617);
+  color:var(--text);
+  padding:20px;
   min-height: 100vh;
-  background: radial-gradient(circle at 0% 0%, #1e1b4b 0%, #0f172a 100%);
-  color: var(--text-main);
-  display: flex;
-  justify-content: center;
-  padding: 24px;
 }
 
-.app-shell {
-  width: 100%;
-  max-width: 1280px;
-  display: grid;
-  grid-template-columns: 400px 1fr;
-  gap: 24px;
+.container{max-width:1150px;margin:auto}
+
+header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:18px;
 }
 
-.sidebar {
-  background: var(--panel);
-  backdrop-filter: blur(20px);
-  border: 1px solid var(--border);
-  border-radius: 24px;
-  padding: 32px;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-  max-height: 90vh;
+h1{font-size:22px;margin:0; background: linear-gradient(to right, #38bdf8, #f472b6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;}
+
+.row{display:flex;gap:16px}
+
+.col{
+  background:var(--card);
+  border:1px solid var(--border);
+  backdrop-filter:blur(14px);
+  padding:20px;
+  border-radius:16px;
+  box-shadow:0 20px 40px rgba(0,0,0,.4);
 }
 
-h1 {
-  font-size: 24px;
-  font-weight: 700;
-  margin: 0 0 8px 0;
-  background: linear-gradient(to right, #fff, var(--text-dim));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+.left{width:400px; flex-shrink: 0;}
+.right{flex:1; display: flex; flex-direction: column;}
+
+label{
+  display:block;
+  font-size:13px;
+  color:var(--muted);
+  margin-bottom:6px;
+  margin-top: 12px;
 }
 
-.subtitle { color: var(--text-dim); font-size: 14px; margin-bottom: 32px; }
-
-.section-label {
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--accent);
-  margin-bottom: 16px;
-  display: block;
+input, select{
+  width:100%;
+  background:#0f172a;
+  color:var(--text);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:8px 10px;
+  transition: 0.2s;
 }
 
-.input-group {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: var(--input-bg);
-  padding: 12px 16px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  margin-bottom: 8px;
+input:focus{
+  outline:none;
+  border-color:var(--accent);
+  box-shadow: 0 0 0 2px rgba(56,189,248,0.2);
 }
 
-input[type="number"] {
-  background: transparent;
-  border: none;
-  color: white;
-  width: 60px;
-  font-weight: 600;
-  font-size: 16px;
-  outline: none;
-}
+hr{border:none;height:1px;background:var(--border);margin:20px 0}
 
-.constraints-container {
-  flex-grow: 1;
-  margin: 10px 0;
-  overflow-y: auto;
-  padding-right: 8px;
-}
-
-.constraint-card {
-  background: rgba(255,255,255,0.03);
-  padding: 10px;
-  border-radius: 12px;
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  border: 1px solid var(--border);
-}
-
-.btn {
-  padding: 12px 20px;
-  border-radius: 12px;
-  border: none;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
+.btn{
+  border:none;
+  border-radius:10px;
+  padding:10px 16px;
+  cursor:pointer;
+  font-weight:600;
+  transition:.2s;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
 }
 
-.btn-primary { background: var(--accent); color: white; width: 100%; }
-.btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); }
-.btn-ghost { background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--border); }
-.btn-danger { background: rgba(239, 68, 68, 0.1); color: #ef4444; padding: 6px 10px; }
-
-.main-view { display: flex; flex-direction: column; gap: 20px; }
-
-.canvas-container {
-  background: #020617;
-  border-radius: 24px;
-  border: 1px solid var(--border);
-  position: relative;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-  flex-grow: 1;
-  min-height: 600px;
+.btn.primary{
+  background:var(--accent);
+  color:#020617;
 }
 
-svg { width: 100%; height: 100%; }
+.btn.primary:hover{transform: translateY(-1px); opacity: 0.9;}
 
-.results-bar {
-  background: rgba(16, 185, 129, 0.1);
-  border: 1px solid rgba(16, 185, 129, 0.2);
-  border-radius: 16px;
-  padding: 20px;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+.btn.ghost{
+  background:transparent;
+  border:1px solid var(--border);
+  color:var(--text);
 }
 
-.stat-box .label { font-size: 12px; color: var(--success); text-transform: uppercase; }
-.stat-box .value { font-size: 20px; font-weight: 700; color: white; }
+.constraints{max-height:350px; overflow-y:auto; margin-bottom: 15px; padding-right: 5px;}
 
-@media (max-width: 1000px) {
-  .app-shell { grid-template-columns: 1fr; }
-  .sidebar { order: 2; max-height: none; }
-  .main-view { order: 1; }
+.constraint{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  margin-bottom:10px;
+}
+
+.constraint input{width:60px; text-align: center;}
+
+.constraint .remove{
+  background:rgba(239,68,68,0.1);
+  color:var(--danger);
+  border: 1px solid rgba(239,68,68,0.2);
+  border-radius:6px;
+  padding:4px 8px;
+  cursor:pointer;
+}
+
+.status{margin-top:15px; padding:10px; border-radius:8px; background: rgba(0,0,0,0.2);}
+.res-val { color: var(--accent); font-weight: bold; font-size: 1.1em;}
+
+svg{
+  width:100%;
+  height:100%;
+  min-height: 500px;
+  background:#020617;
+  border-radius:12px;
+  border:1px solid var(--border);
+}
+
+.grid-line { stroke: rgba(255,255,255,0.05); stroke-width: 1; }
+.axis { stroke: var(--muted); stroke-width: 2; }
+
+@media(max-width:900px){
+  .row{flex-direction:column}
+  .left{width:100%}
 }
 </style>
 </head>
+
 <body>
+<div class="container">
 
-<div class="app-shell">
-  <aside class="sidebar">
-    <div style="display:flex; justify-content: space-between; align-items: flex-start;">
-      <div>
-        <h1>LP Visualizer</h1>
-        <p class="subtitle">Графічний метод</p>
-      </div>
-      <button id="reset" class="btn btn-ghost" style="padding: 6px 10px; font-size: 11px;">Reset</button>
-    </div>
+<header>
+  <h1>LP Visual Solver</h1>
+  <div>
+    <button id="reset" class="btn ghost">Скинути</button>
+  </div>
+</header>
 
-    <span class="section-label">Цільова функція (Max)</span>
-    <div class="input-group">
-      <input id="coeffA" type="number" value="3"/>
-      <span style="color:var(--text-dim)">x₁ +</span>
-      <input id="coeffB" type="number" value="2"/>
-      <span style="color:var(--text-dim)">x₂</span>
-    </div>
+<div class="row">
 
-    <label style="margin: 15px 0; display: flex; align-items: center; gap: 10px; cursor: pointer;">
-      <input id="nonneg" type="checkbox" checked style="accent-color: var(--accent); width: 18px; height: 18px;">
-      <span style="font-size: 13px;">Обмеження x₁, x₂ ≥ 0</span>
-    </label>
+<div class="col left">
+  <label>Цільова функція (Maximize F)</label>
+  <div style="display:flex;gap:8px;align-items:center">
+    <input id="objA" type="number" value="3"/>
+    <span>x₁ +</span>
+    <input id="objB" type="number" value="2"/>
+    <span>x₂</span>
+  </div>
 
-    <span class="section-label">Обмеження (≤)</span>
-    <div class="constraints-container" id="constraintsList"></div>
+  <label>
+    <input id="nonneg" type="checkbox" checked style="width:auto; margin-right:8px"/>
+    Обмеження невід'ємності (x₁, x₂ ≥ 0)
+  </label>
 
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-      <button id="addCons" class="btn btn-ghost">＋ Додати</button>
-      <button id="solve" class="btn btn-primary">Обчислити</button>
-    </div>
-  </aside>
+  <hr/>
 
-  <main class="main-view">
-    <div class="canvas-container">
-      <svg id="svg" viewBox="0 0 600 600">
-        <defs>
-          <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse">
-            <path d="M 30 0 L 0 0 0 30" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#grid)" />
-        <g id="viewport"></g>
-      </svg>
-    </div>
+  <label>Система обмежень (Ax₁ + Bx₂ ≤ S)</label>
+  <div class="constraints" id="constraintsList"></div>
 
-    <div class="results-bar" id="results" style="display: none;">
-      <div class="stat-box">
-        <div class="label">Оптимальне x₁</div>
-        <div class="value" id="resX1">-</div>
-      </div>
-      <div class="stat-box">
-        <div class="label">Оптимальне x₂</div>
-        <div class="value" id="resX2">-</div>
-      </div>
-      <div class="stat-box">
-        <div class="label">Максимум F</div>
-        <div class="value" id="resF">-</div>
-      </div>
-    </div>
-  </main>
+  <div style="display:flex;gap:8px">
+    <button id="addCons" class="btn ghost" style="flex:1">+ Додати</button>
+    <button id="solve" class="btn primary" style="flex:1; background:var(--success)">
+      Розв'язати
+    </button>
+  </div>
+
+  <div id="result" class="status" style="display:none">
+    <div>Оптимальний план:</div>
+    <div id="solutionBox" style="margin-top:5px"></div>
+  </div>
+</div>
+
+<div class="col right">
+  <svg id="svg" viewBox="0 0 600 600">
+    </svg>
+</div>
+
+</div>
+
+<footer>
+  Візуальний симплекс-метод (сітковий пошук) • 2024
+</footer>
+
 </div>
 
 <script>
 const svg = document.getElementById("svg");
-const viewport = document.getElementById("viewport");
 const list = document.getElementById("constraintsList");
-const resultsBar = document.getElementById("results");
+const solBox = document.getElementById("solutionBox");
+const resDiv = document.getElementById("result");
+
+const SCALE = 30; // 1 одиниця = 30 пікселів
+const OFFSET = 40; // Відступ від краю для осей
 
 let constraints = [
-  {id: 1, c: 1, d: 2, s: 10},
-  {id: 2, c: 2, d: 1, s: 8},
-  {id: 3, c: 0, d: 1, s: 4}
+  {a: 1, b: 2, s: 8},
+  {a: 3, b: 2, s: 12}
 ];
 
-const SCALE = 30; // 1 одиниця = 30px
-const SIZE = 600;
-
-function renderList() {
+function renderConstraints() {
   list.innerHTML = "";
-  constraints.forEach(l => {
-    const r = document.createElement("div");
-    r.className = "constraint-card";
-    r.innerHTML = `
-      <input type="number" value="${l.c}" onchange="updateVal(${l.id},'c',this.value)">
-      <span>x₁+</span>
-      <input type="number" value="${l.d}" onchange="updateVal(${l.id},'d',this.value)">
-      <span>x₂≤</span>
-      <input type="number" value="${l.s}" onchange="updateVal(${l.id},'s',this.value)">
-      <button class="btn btn-danger" onclick="remove(${l.id})">✕</button>`;
-    list.appendChild(r);
+  constraints.forEach((c, index) => {
+    const div = document.createElement("div");
+    div.className = "constraint";
+    div.innerHTML = `
+      <input type="number" class="c-a" value="${c.a}">
+      <span>x₁ +</span>
+      <input type="number" class="c-b" value="${c.b}">
+      <span>x₂ ≤</span>
+      <input type="number" class="c-s" value="${c.s}">
+      <button class="remove" onclick="removeConstraint(${index})">✕</button>
+    `;
+    list.appendChild(div);
   });
 }
 
-function updateVal(id, f, v) {
-  const c = constraints.find(x => x.id === id);
-  if(c) c[f] = parseFloat(v) || 0;
-  draw();
-}
+window.removeConstraint = (index) => {
+  constraints.splice(index, 1);
+  renderConstraints();
+};
 
-function remove(id) {
-  constraints = constraints.filter(x => x.id !== id);
-  renderList(); draw();
-}
+document.getElementById("addCons").onclick = () => {
+  constraints.push({a: 1, b: 1, s: 5});
+  renderConstraints();
+};
 
-function isFeasible(x, y) {
-  if (document.getElementById("nonneg").checked && (x < -0.01 || y < -0.01)) return false;
-  return constraints.every(l => (l.c * x + l.d * y) <= l.s + 0.01);
+function getConstraintsFromUI() {
+  const items = document.querySelectorAll(".constraint");
+  return Array.from(items).map(item => ({
+    a: parseFloat(item.querySelector(".c-a").value) || 0,
+    b: parseFloat(item.querySelector(".c-b").value) || 0,
+    s: parseFloat(item.querySelector(".c-s").value) || 0
+  }));
 }
 
 function solve() {
-  let best = null, maxF = -Infinity;
-  for(let x=0; x<=20; x+=0.1) {
-    for(let y=0; y<=20; y+=0.1) {
-      if(isFeasible(x, y)) {
-        let f = x * +coeffA.value + y * +coeffB.value;
-        if(f > maxF) { maxF = f; best = {x, y}; }
+  const currentConstraints = getConstraintsFromUI();
+  const objA = parseFloat(document.getElementById("objA").value) || 0;
+  const objB = parseFloat(document.getElementById("objB").value) || 0;
+  const useNonNeg = document.getElementById("nonneg").checked;
+
+  let bestX = 0, bestY = 0, maxF = -Infinity;
+  let found = false;
+
+  // Пошук по сітці (для візуалізації 2D цього зазвичай достатньо)
+  // В ідеалі тут має бути перебір вершин багатогранника
+  for (let x = 0; x <= 20; x += 0.05) {
+    for (let y = 0; y <= 20; y += 0.05) {
+      let isFeasible = true;
+      
+      if (useNonNeg && (x < -0.001 || y < -0.001)) isFeasible = false;
+      
+      if (isFeasible) {
+        for (let c of currentConstraints) {
+          if (c.a * x + c.b * y > c.s + 0.001) {
+            isFeasible = false;
+            break;
+          }
+        }
+      }
+
+      if (isFeasible) {
+        found = true;
+        let F = objA * x + objB * y;
+        if (F > maxF) {
+          maxF = F;
+          bestX = x;
+          bestY = y;
+        }
       }
     }
   }
-  if(best) {
-    resultsBar.style.display = "grid";
-    resX1.textContent = best.x.toFixed(2);
-    resX2.textContent = best.y.toFixed(2);
-    resF.textContent = maxF.toFixed(2);
-    draw(best);
+
+  if (found) {
+    resDiv.style.display = "block";
+    solBox.innerHTML = `
+      x₁ = <span class="res-val">${bestX.toFixed(2)}</span><br>
+      x₂ = <span class="res-val">${bestY.toFixed(2)}</span><br>
+      F<sub>max</sub> = <span class="res-val">${maxF.toFixed(2)}</span>
+    `;
+    draw(currentConstraints, {x: bestX, y: bestY});
+  } else {
+    resDiv.style.display = "block";
+    solBox.innerHTML = "Розв'язків не знайдено";
+    draw(currentConstraints, null);
   }
 }
 
-function draw(opt) {
-  viewport.innerHTML = "";
-
-  // 1. Малюємо область допустимих рішень (Scanline visualization)
-  const region = document.createElementNS("http://www.w3.org/2000/svg", "path");
-  let d = "";
-  for(let x=0; x<=20; x+=0.2) {
-    let minY = -1, maxY = -1;
-    for(let y=0; y<=20; y+=0.2) {
-      if(isFeasible(x,y)) {
-        if(minY === -1) minY = y;
-        maxY = y;
-      }
-    }
-    if(minY !== -1) {
-      d += `${x==0?'M':'L'} ${x*SCALE} ${SIZE - maxY*SCALE} `;
-    }
+function draw(cons, opt) {
+  svg.innerHTML = '';
+  
+  // Малюємо сітку
+  for(let i=0; i<=20; i++) {
+    const pos = OFFSET + i * SCALE;
+    // Вертикальні
+    line(pos, OFFSET, pos, 600, "grid-line");
+    // Горизонтальні
+    line(OFFSET, 600 - pos + OFFSET, 600, 600 - pos + OFFSET, "grid-line");
   }
-  // Замикаємо шлях по осі X для коректної заливки
-  d += `L 20 600 L 0 600 Z`; 
-  region.setAttribute("d", d);
-  region.setAttribute("fill", "rgba(99, 102, 241, 0.2)");
-  viewport.appendChild(region);
 
-  // 2. Осі координат
-  const axes = document.createElementNS("http://www.w3.org/2000/svg", "g");
-  axes.innerHTML = `
-    <line x1="0" y1="${SIZE}" x2="${SIZE}" y2="${SIZE}" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
-    <line x1="0" y1="0" x2="0" y2="${SIZE}" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
-    <text x="${SIZE-20}" y="${SIZE-10}" fill="white" font-size="12">x₁</text>
-    <text x="10" y="20" fill="white" font-size="12">x₂</text>
-  `;
-  viewport.appendChild(axes);
+  // Осі
+  line(OFFSET, 0, OFFSET, 600, "axis"); // Y
+  line(0, 560, 600, 560, "axis"); // X (600 - OFFSET)
 
-  // 3. Лінії обмежень
-  constraints.forEach(l => {
-    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  // Обмеження
+  cons.forEach((c, i) => {
     let x1, y1, x2, y2;
-    if(l.d !== 0 && l.c !== 0) {
-      x1 = 0; y1 = l.s/l.d; x2 = l.s/l.c; y2 = 0;
-    } else if (l.d === 0) {
-      x1 = l.s/l.c; y1 = 0; x2 = l.s/l.c; y2 = 20;
-    } else {
-      x1 = 0; y1 = l.s/l.d; x2 = 20; y2 = l.s/l.d;
+    
+    if (c.b !== 0) {
+      x1 = 0; y1 = c.s / c.b;
+      x2 = 20; y2 = (c.s - c.a * 20) / c.b;
+    } else if (c.a !== 0) {
+      x1 = c.s / c.a; y1 = 0;
+      x2 = c.s / c.a; y2 = 20;
     }
-    line.setAttribute("x1", x1*SCALE); line.setAttribute("y1", SIZE-y1*SCALE);
-    line.setAttribute("x2", x2*SCALE); line.setAttribute("y2", SIZE-y2*SCALE);
-    line.setAttribute("stroke", "var(--accent)");
-    line.setAttribute("stroke-width", "2");
-    viewport.appendChild(line);
+
+    const x1p = OFFSET + x1 * SCALE;
+    const y1p = 560 - y1 * SCALE;
+    const x2p = OFFSET + x2 * SCALE;
+    const y2p = 560 - y2 * SCALE;
+
+    line(x1p, y1p, x2p, y2p, null, "#38bdf8", 3);
   });
 
-  // 4. Точка оптимуму
-  if(opt) {
-    const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-    dot.setAttribute("cx", opt.x*SCALE);
-    dot.setAttribute("cy", SIZE-opt.y*SCALE);
-    dot.setAttribute("r", "6");
-    dot.setAttribute("fill", "var(--secondary)");
-    dot.setAttribute("style", "filter: drop-shadow(0 0 8px var(--secondary))");
-    viewport.appendChild(dot);
+  // Точка оптимуму
+  if (opt) {
+    const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    circle.setAttribute("cx", OFFSET + opt.x * SCALE);
+    circle.setAttribute("cy", 560 - opt.y * SCALE);
+    circle.setAttribute("r", 8);
+    circle.setAttribute("fill", "#f472b6");
+    circle.innerHTML = `<title>Оптимум</title>`;
+    svg.appendChild(circle);
   }
 }
 
-addCons.onclick = () => {
-  constraints.push({id: Date.now(), c: 1, d: 1, s: 5});
-  renderList(); draw();
-};
-solve.onclick = solve;
-reset.onclick = () => {
-  constraints = [{id: 1, c: 1, d: 2, s: 10}, {id: 2, c: 2, d: 1, s: 8}];
-  coeffA.value = 3; coeffB.value = 2;
-  resultsBar.style.display = "none";
-  renderList(); draw();
+function line(x1, y1, x2, y2, className, stroke, width) {
+  const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  l.setAttribute("x1", x1);
+  l.setAttribute("y1", y1);
+  l.setAttribute("x2", x2);
+  l.setAttribute("y2", y2);
+  if (className) l.setAttribute("class", className);
+  if (stroke) l.setAttribute("stroke", stroke);
+  if (width) l.setAttribute("stroke-width", width);
+  svg.appendChild(l);
+}
+
+document.getElementById("solve").onclick = solve;
+document.getElementById("reset").onclick = () => {
+  constraints = [{a: 1, b: 2, s: 8}, {a: 3, b: 2, s: 12}];
+  document.getElementById("objA").value = 3;
+  document.getElementById("objB").value = 2;
+  resDiv.style.display = "none";
+  renderConstraints();
+  draw(constraints, null);
 };
 
-renderList(); draw();
+// Start
+renderConstraints();
+draw(constraints, null);
 </script>
-
 </body>
 </html>
