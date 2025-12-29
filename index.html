@@ -2,36 +2,47 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Reddy Mikks Optimizer</title>
+  <title>Linear Programming – Graphical Method</title>
   <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <h1>Reddy Mikks Linear Programming Solver</h1>
 
-  <section id="input-section">
-    <h2>Objective Function</h2>
-    Max Z = <input type="number" id="a" placeholder="a"> * x1 + 
-            <input type="number" id="b" placeholder="b"> * x2
+<h1>Linear Programming Solver (2 Variables)</h1>
 
-    <h2>Constraints</h2>
-    <div id="constraints">
-      <!-- Default constraints -->
-      <input type="text" value="6*x1 + 4*x2 <= 24">
-      <input type="text" value="1*x1 + 2*x2 <= 6">
-      <input type="text" value="x2 - x1 <= 1">
-      <input type="text" value="x2 <= 2">
-    </div>
-    <button onclick="addConstraint()">Add Constraint</button>
-    <button onclick="solve()">Solve</button>
-  </section>
+<section>
+  <h2>Objective Function</h2>
+  Max Z =
+  <input id="a" type="number" value="3"> · x₁ +
+  <input id="b" type="number" value="2"> · x₂
+</section>
 
-  <section id="output-section">
-    <h2>Solution</h2>
-    <p id="solution"></p>
-    <canvas id="graph"></canvas>
-  </section>
+<section>
+  <h2>Resource Constraints</h2>
+  <div>
+    <input id="m1a" type="number" value="1"> x₁ +
+    <input id="m1b" type="number" value="1"> x₂ ≤
+    <input id="m1c" type="number" value="8">
+  </div>
+  <div>
+    <input id="m2a" type="number" value="2"> x₁ +
+    <input id="m2b" type="number" value="1"> x₂ ≤
+    <input id="m2c" type="number" value="10">
+  </div>
+</section>
 
-  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-  <script src="script.js"></script>
+<section>
+  <h2>Demand Constraints</h2>
+  <div id="constraints"></div>
+  <button onclick="addConstraint()">Add constraint</button>
+</section>
+
+<button onclick="solve()">Solve</button>
+
+<h2 id="result"></h2>
+<canvas id="chart" width="600" height="400"></canvas>
+
+<script src="script.js"></script>
 </body>
 </html>
+
